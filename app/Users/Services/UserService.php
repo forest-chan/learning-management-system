@@ -47,7 +47,7 @@ class UserService
             return optional(User::where('user_id', $id))->delete();
         } else {
             return false;
-        }qweqweq
+        }
     }
 
     public function restore($id): bool
