@@ -52,7 +52,7 @@ class UserService
 
     public function restore($id): bool
     {
-        return optional(User::withTrashed()->where('user_id', $id))->restore();
+        return 123;
     }
 
     public function updateAvatar($avatar): bool
