@@ -5,6 +5,7 @@ namespace App\Courses\Services;
 use App\Courses\Models\Export;
 use App\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -58,6 +59,12 @@ class ExportCourseService extends CourseService
         $writer = new Xlsx($spreadsheet);
         $savedFileName = '../storage/app/'.$fileName;
         $writer->save($savedFileName);
+
+        if (count(Export::where('export_owner_id', auth()->id())->get()) > 3) {
+            $fileToDelete = Export::where('export_owner_id', auth()->id())->oldest()->first();
+            Storage::delete($fileToDelete->export_file_path);
+            $fileToDelete->delete();
+        }
 
         $export = new Export();
         $export->export_owner_id = auth()->user()->user_id;
