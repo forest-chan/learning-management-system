@@ -23,11 +23,11 @@
                 passedContent="{{ round(count($myCourseProgress['passed'])) }}"
                 class="progress h3">{{ $myCourseProgress['progress'] }}</p>
     <br><br>
-    <div class="h2 mb20">{{ __('main.courseContent') }}:</div>
+    <b class="h2 mb20">{{ __('main.courseContent') }}:</b>
     @foreach($course->content as $element)
         @if ($element->deleted_at === NULL)
         <div class="margin20-0 courses__course-content">
-            <b class="h3">{{$element->title}}</b><br><br>
+            <b class="h3" style="font-weight: 400;">{{$element->title}}</b><br><br>
             ❮{{$element->type->type}}❯
 
             <button class="send-stmt-button"
