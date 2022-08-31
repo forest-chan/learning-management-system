@@ -423,6 +423,12 @@ a.courses__course-play {
     border-radius: 10px 0 0 0;
     bottom: 0;
 }
+.courses__course-content {
+    padding: 20px;
+    border: 1px solid #4a5568;
+    border-radius: 10px;
+    background-color: #12141c;
+}
 .courses__course-author {
     position: absolute;
     bottom: 25px;

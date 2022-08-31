@@ -19,14 +19,14 @@
     </div>
     <div class="courses__course-description mb30">{{ __('main.description') }}: {{ Str::limit($course->description, 200, '...') }}</div>
 
-    <p style="color: whitesmoke;" allContent="{{ count($course->content) }}"
+    <p style="color: whitesmoke; margin-bottom: 20px;" allContent="{{ count($course->content) }}"
                 passedContent="{{ round(count($myCourseProgress['passed'])) }}"
                 class="progress h3">{{ $myCourseProgress['progress'] }}</p>
     <br><br>
     <div class="h2 mb20">{{ __('main.courseContent') }}:</div>
     @foreach($course->content as $element)
         @if ($element->deleted_at === NULL)
-        <div class="margin20-0">
+        <div class="margin20-0 courses__course-content">
             <b class="h3">{{$element->title}}</b><br><br>
             ❮{{$element->type->type}}❯
 
@@ -71,13 +71,12 @@
             @if($element->type->type != 'Test')
                 <p>{{ json_decode($element->item_content) ?? ""}}</p>
             @endif
-            <br>
         </div>
         @endif
     @endforeach
 
     <button id="send-stmt-passed-button"
-            class="rounded-black-button"
+            class="rounded-black-button mb30"
             courseId="{{ $course->course_id }}">
             {{ __('main.completeCourse') }}
     </button>
@@ -151,7 +150,7 @@ $("#send-stmt-passed-button").click(function() {
         data: {'myCourseProgressPassed': myCourseProgressPassed, 'myCourseProgressLaunched': myCourseProgressLaunched},
         timeout: 500,
         success: function (html) {
-            $('#send-stmt-passed-button').text(html).prop('disabled', true).css('background', '#3f3f3f');
+            $('#send-stmt-passed-button').text(html).prop('disabled', true).css('background', '#5ca143');
             setTimeout(() => {
                 $('#send-stmt-passed-button').text('{{ __('main.courseCompleted') }}');
             }, 1500);
