@@ -34,6 +34,21 @@ Route::post('send-passed/{course_id}', [StatementController::class, 'sendPassedC
     ->where('course_id', '[0-9]+')
     ->name('send.passed.course.statements');
 
+Route::get('/get-test', function () {
+    $lrs = new TinCan\RemoteLRS();
+    $lrs->setEndpoint('http://127.0.0.1:8001/api/xAPI');
+    $token = ['Authorization' => config('services.lrs.token')];
+    $lrs->setHeaders($token);
 
+    $verb = new TinCan\Verb(
+        ['id' => 'http://adlnet.gov/expapi/verbs/passed']
+    );
+    $response = $lrs->queryStatements([
+        'verb' => $verb,
+    ]);
+    $responseString = $response->httpResponse["_content"];
+    dd(json_decode($responseString));
+
+});
 
 

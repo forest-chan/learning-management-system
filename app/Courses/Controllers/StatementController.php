@@ -3,13 +3,14 @@
 namespace App\Courses\Controllers;
 
 use App\Courses\Helpers\ClientLRS;
+use App\Courses\Helpers\ClientTinCan;
 use App\Courses\Helpers\LocalStatements;
 use App\Courses\Services\CourseService;
 use App\Courses\Services\StatementService;
 use App\Http\Controllers\Controller;
 use App\Users\Models\User;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
+use TinCan\LRSResponse;
 
 class StatementController extends Controller
 {
@@ -17,9 +18,9 @@ class StatementController extends Controller
     {
     }
 
-    public function sendLaunchCourseStatement(Request $request, int $courseId, int $sectionId) : Response|string
+    public function sendLaunchCourseStatement(Request $request, int $courseId, int $sectionId) : string|int
     {
-        $myCourseProgressLaunched = $request->input('myCourseProgressLaunched');
+        $myCourseProgressLaunched = $request->input('myCourseProgressLaunched') ?? [];
 
         if (in_array($sectionId,$myCourseProgressLaunched)){
             return "Already sent launch";
@@ -32,15 +33,20 @@ class StatementController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        $statementLocalSend = new LocalStatements();
-        $statementLocalSend->sendLocalStatement($user->user_id, $sectionId, 'launched');
+        $responseLRS = ClientTinCan::sendStatement($user, ClientTinCan::PASSED, $course, $section);
 
-        return ClientLRS::sendStatement($user, 'launched', $course, $section);
+        if ($responseLRS != 403)
+        {
+            $statementLocalSend = new LocalStatements();
+            $statementLocalSend->sendLocalStatement($user->user_id, $sectionId, 'passed');
+        }
+
+        return $responseLRS;
     }
 
-    public function sendPassCourseStatement(Request $request, int $courseId, int $sectionId) : Response|string
+    public function sendPassCourseStatement(Request $request, int $courseId, int $sectionId) : string|int
     {
-        $myCourseProgressPassed = $request->input('myCourseProgressPassed');
+        $myCourseProgressPassed = $request->input('myCourseProgressPassed') ?? [];
 
         if (in_array($sectionId,$myCourseProgressPassed)){
             return "Already sent pass";
@@ -53,10 +59,15 @@ class StatementController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        $statementLocalSend = new LocalStatements();
-        $statementLocalSend->sendLocalStatement($user->user_id, $sectionId, 'passed');
+        $responseLRS = ClientTinCan::sendStatement($user, ClientTinCan::PASSED, $course, $section);
 
-        return ClientLRS::sendStatement($user, 'passed', $course, $section);
+        if ($responseLRS != 403)
+        {
+            $statementLocalSend = new LocalStatements();
+            $statementLocalSend->sendLocalStatement($user->user_id, $sectionId, 'passed');
+        }
+
+        return $responseLRS;
     }
 
     public function getCourseStatements(int $courseId) : array
@@ -64,12 +75,12 @@ class StatementController extends Controller
         return ClientLRS::getCoursesStatements([$courseId]);
     }
 
-    public function sendPassedCourseStatements(Request $request, int $courseId) : Response
+    public function sendPassedCourseStatements(Request $request, int $courseId) : LRSResponse
     {
         /** @var User $user */
         $user = auth()->user();
         $course = $this->courseService->getCourse($courseId);
-        return ClientLRS::sendStatement($user, ClientLRS::PASSED, $course);
+        return ClientTinCan::sendStatement($user, ClientLRS::PASSED, $course);
     }
 
 }
